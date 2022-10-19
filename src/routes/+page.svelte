@@ -1,10 +1,6 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 <meta charset="utf-8">
 
-<script>
-	 import { Button } from 'sveltestrap';
-</script>
-
 <head>
  <style type ='text/css'>
  body{margin: 0}
@@ -64,9 +60,12 @@
 
 
 <div class="d-grid gap-5 d-md-flex">
-    <Button color=primary on:click>Установить параметры</Button>
-
-    <Button color=primary on:click>Обнулить параметры</Button>
+<div class="col-auto">
+    <button id="use-btn-parameters" class="btn btn-primary me-md-5">Установить параметры</button>
+</div>
+<div class="col-auto">
+    <button id="null-btn-parameters" class="btn btn-primary">Обнулить параметры </button><br>
+</div>
 </div>
 <br>
 <br>
@@ -75,12 +74,13 @@
 <h3> <strong>Выберите режим работы</strong></h3><br>
 
 <div class="d-grid gap-5 d-md-flex">
-        <Button color=primary on:click>Пошаговый режим</Button>
-
-        <Button color=primary on:click>Автоматический режим</Button><br>
+	<div class="col-auto">
+		<button id="use-btn-parameters" class="btn btn-primary me-md-5">Пошаговый режим</button>
+	</div>
+	<div class="col-auto">
+		<button id="null-btn-parameters" class="btn btn-primary">Автоматический режим </button><br>
+	</div>
     </div>
     <br>
-
-
 
 </body>
