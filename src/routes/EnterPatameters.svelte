@@ -1,5 +1,7 @@
 <script>
-	import { buffer, sources, recievers} from './store.js';
+	import { buffer, sources, recievers } from './store.js';
+	import { Button } from 'sveltestrap';
+	import { compute_slots } from 'svelte/internal';
 
 	async function doDebug() {
 		let n = document.getElementById('get_N').value;
@@ -15,7 +17,7 @@
 			let elem = {
 				sourceNumber: 0,
 				number: 0,
-				status: "free"
+				status: 'free'
 			};
 			buf.push(elem);
 			number = number + 1;
@@ -27,13 +29,13 @@
 			let source = {
 				number: 0,
 				status: 'waiting',
-				genTime: index,// генерируем для источника время по нужному закону
+				genTime: index, // генерируем для источника время по нужному закону
 				bufTime: 0,
 				refusalTime: 0,
 				reqNumber: 0
 			};
 			sor.push(source);
-			number =number + 1;
+			number = number + 1;
 		}
 		sources.set(sor);
 
@@ -42,7 +44,7 @@
 			let reciever = {
 				number: 0,
 				status: 'waiting',
-				freeTime: 100-index,// генерируем для приёмника время по нужному закону
+				freeTime: 100 - index, // генерируем для приёмника время по нужному закону
 				reqNumber: 0,
 				workTime: 0
 			};
@@ -55,9 +57,9 @@
 		// console.log($sources);
 		// console.log($recievers);
 		let sortedR = $recievers.slice().sort((a, b) => a.freeTime - b.freeTime);
-        let sortedS = $sources.slice().sort((a, b) => a.genTime - b.genTime);
+		let sortedS = $sources.slice().sort((a, b) => a.genTime - b.genTime);
 		recievers.set(sortedR);
-        sources.set(sortedS);
+		sources.set(sortedS);
 	}
 </script>
 
@@ -69,7 +71,7 @@
 />
 <meta charset="utf-8" />
 
-<body>
+<component>
 	<h3><strong>Введите параметры системы</strong></h3>
 	<br />
 	<div class="mb-3 row">
@@ -151,14 +153,6 @@
 	</div>
 	<br />
 
-	<div class="d-grid gap-5 d-md-flex">
-		<div class="col-auto">
-			<button id="set-btn-parameters" class="btn btn-primary me-md-5" on:click={doDebug}
-				>Установить параметры</button
-			>
-		</div>
-	</div>
-	<br />
-	<br />
-	<br />
-</body>
+</component>
+
+<Button color="primary" on:click={doDebug}>Установить параметры</Button>
