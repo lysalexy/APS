@@ -1,7 +1,6 @@
 <script>
 	import { buffer, sources, recievers } from './store.js';
 	import { Button } from 'sveltestrap';
-	import { compute_slots } from 'svelte/internal';
 
 	async function doDebug() {
 		let n = document.getElementById('get_N').value;

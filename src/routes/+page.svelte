@@ -15,6 +15,9 @@
 <EnterParameters/>
  
 <body>
+	<br /> 
+	<br /> 
+	<br /> 
 
 	<h3><strong>Выберите режим работы</strong></h3>
 	<br />
