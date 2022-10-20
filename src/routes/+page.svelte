@@ -1,3 +1,9 @@
+<script>
+	import EnterParameters from './EnterPatameters.svelte';
+	import { currentTime } from './store.js';
+	import { Button, Row, Col} from 'sveltestrap';
+</script>
+
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
 	rel="stylesheet"
@@ -6,29 +12,44 @@
 />
 <meta charset="utf-8" />
 
-
-<script>
-	import EnterParameters from "./EnterPatameters.svelte";
-</script>
-
-
-<EnterParameters/>
- 
 <body>
-	<br /> 
-	<br /> 
-	<br /> 
-
-	<h3><strong>Выберите режим работы</strong></h3>
-	<br />
-
-	<div class="d-grid gap-5 d-md-flex">
-		<div class="col-auto">
-			<button id="use-btn-parameters" class="btn btn-primary me-md-5">Пошаговый режим</button>
+	<div id="flex-container">
+		<div class="flex-item">
+			<EnterParameters />
+			<br />
+			<br />
+			<br />
+			<h3><strong>Выберите режим работы</strong></h3>
+			<br />
+			<Row>
+				<Col sm="4">
+					<Button color="primary">Пошаговый режим</Button>
+				</Col>
+				<Col sm="6">
+					<Button color="primary">Автоматический режим</Button>
+				</Col>
+			</Row>
+			<br />
 		</div>
-		<div class="col-auto">
-			<button id="null-btn-parameters" class="btn btn-primary">Автоматический режим </button><br />
+		<div class="flex-item">
+			<h3><strong>Выберите режим работы</strong></h3>
+			<h3><strong>{$currentTime}</strong></h3>
 		</div>
 	</div>
-	<br />
 </body>
+
+<style>
+	#flex-container {
+		display: -webkit-flex;
+		display: flex;
+		-webkit-flex-direction: row;
+		flex-direction: row;
+	}
+
+	#flex-container > .flex-item {
+		-webkit-flex: auto;
+		flex: auto;
+		margin-top: 50px;
+		margin-left: 60px;
+	}
+</style>

@@ -1,6 +1,6 @@
 <script>
 	import { buffer, sources, recievers } from './store.js';
-	import { Button } from 'sveltestrap';
+	import { Button, Row, Col, Input, Label } from 'sveltestrap';
 
 	async function doDebug() {
 		let n = document.getElementById('get_N').value;
@@ -16,7 +16,8 @@
 			let elem = {
 				sourceNumber: 0,
 				number: 0,
-				status: 'free'
+				status: 'free',
+				timeOfPasting: 0
 			};
 			buf.push(elem);
 			number = number + 1;
@@ -27,11 +28,10 @@
 		for (let index = 0; index < source_amount; index++) {
 			let source = {
 				number: 0,
-				status: 'waiting',
 				genTime: index, // генерируем для источника время по нужному закону
-				bufTime: 0,
+				bufFerTime: 0,
 				refusalTime: 0,
-				reqNumber: 0
+				generatedRequestsAmount: 0
 			};
 			sor.push(source);
 			number = number + 1;
@@ -44,7 +44,8 @@
 				number: 0,
 				status: 'waiting',
 				freeTime: 100 - index, // генерируем для приёмника время по нужному закону
-				reqNumber: 0,
+				requestSource: 0,
+				requestNumber: 0,
 				workTime: 0
 			};
 			rec.push(reciever);
@@ -73,85 +74,69 @@
 <component>
 	<h3><strong>Введите параметры системы</strong></h3>
 	<br />
-	<div class="mb-3 row">
-		<label for="get_N" class="col-sm-1 col-form-label"> <strong>N</strong></label>
-		<div class="col-sm-4">
-			<input type="number" class="form-control" placeholder="Введите число заявок" id="get_N" />
-		</div>
-	</div>
+
+	<Row>
+		<Col sm="3">
+			<Label for="get_N"><strong>N</strong></Label>
+		</Col>
+        <Col sm="6">
+			<Input type="number" id="get_N" placeholder="Введите число заявок" />
+		</Col>
+	</Row>
 	<br />
 
-	<div class="mb-3 row">
-		<label for="get_alfa" class="col-sm-1 col-form-label"> <strong>alfa</strong></label>
-		<div class="col-sm-4">
-			<input
-				type="number"
-				class="form-control"
-				placeholder="Введите минимальное время генерации заявки"
-				id="get_alfa"
-			/>
-		</div>
-	</div>
+    <Row>
+		<Col sm="3">
+			<Label for="get_alfa"><strong>alfa</strong></Label>
+		</Col>
+        <Col sm="6">
+			<Input type="number" id="get_alfa" placeholder="Введите минимальное время генерации заявки" />
+		</Col>
+	</Row>
 	<br />
 
-	<div class="mb-3 row">
-		<label for="get_beta" class="col-sm-1 col-form-label"> <strong>beta</strong></label>
-		<div class="col-sm-4">
-			<input
-				type="number"
-				class="form-control"
-				placeholder="Введите максимальное время генерации заявки"
-				id="get_beta"
-			/>
-		</div>
-	</div>
+    
+    <Row>
+		<Col sm="3">
+			<Label for="get_beta"><strong>beta</strong></Label>
+		</Col>
+        <Col sm="6">
+			<Input type="number" id="get_beta" placeholder="Введите максимальное время генерации заявки"/>
+		</Col>
+	</Row>
+
+	<br />
+    <Row>
+		<Col sm="3">
+			<Label for="get_source_amount"><strong>число источников</strong></Label>
+		</Col>
+        <Col sm="6">
+			<Input type="number" id="get_source_amount" placeholder="Введите число источников"/>
+		</Col>
+	</Row>
+
 	<br />
 
-	<div class="mb-3 row">
-		<label for="get_source_amount" class="col-sm-1 col-form-label">
-			<strong>число источников</strong></label
-		>
-		<div class="col-sm-4">
-			<input
-				type="number"
-				class="form-control"
-				placeholder="Введите число источников"
-				id="get_source_amount"
-			/>
-		</div>
-	</div>
+    <Row>
+		<Col sm="3">
+			<Label for="get_reciever_amount"><strong>число приёмников</strong></Label>
+		</Col>
+        <Col sm="6">
+			<Input type="number" id="get_reciever_amount" placeholder="Введите число приёмников"/>
+		</Col>
+	</Row>
+
 	<br />
 
-	<div class="mb-3 row">
-		<label for="get_reciever_amount" class="col-sm-1 col-form-label">
-			<strong>число приёмников</strong></label
-		>
-		<div class="col-sm-4">
-			<input
-				type="number"
-				class="form-control"
-				placeholder="Введите число приёмников"
-				id="get_reciever_amount"
-			/>
-		</div>
-	</div>
+    <Row>
+		<Col sm="3">
+			<Label for="get_buffer_size"><strong>число приёмников</strong></Label>
+		</Col>
+        <Col sm="6">
+			<Input type="number" id="get_buffer_size" placeholder="Введите размер буфера"/>
+		</Col>
+	</Row>
 	<br />
-
-	<div class="mb-3 row">
-		<label for="get_buffer_size" class="col-sm-1 col-form-label">
-			<strong>размер буфера</strong></label
-		>
-		<div class="col-sm-4">
-			<input
-				type="number"
-				class="form-control"
-				placeholder="Введите размер буфера"
-				id="get_buffer_size"
-			/>
-		</div>
-	</div>
-	<br />
-
 </component>
 
 <Button color="primary" on:click={doDebug}>Установить параметры</Button>
