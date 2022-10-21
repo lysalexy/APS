@@ -46,8 +46,6 @@
 			this.generatedRequestsAmount+=1;
 			generatedRequests.update(count=>count+1);
 			currentEvent.set("Источник "+this.number+" сгенерировал заявку №"+this.generatedRequestsAmount);
-			let sortedS = sources_.slice().sort((a, b) => a.genTime - b.genTime);
-			sources.set(sortedS);
 		}
 
 		generateNewRequestTime(alfa:number, beta:number) {

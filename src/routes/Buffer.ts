@@ -1,7 +1,7 @@
 import { buffer, currentEvent, requestSource, requestNumber } from './store.js';
 import type { Source } from './Source';
 
-class BufferElem {
+export class BufferElem {
     private sourceNumber: number = 0;
     private number: number = 0;
     private status: string = 'free';
@@ -47,6 +47,10 @@ export class Buffer {
         }
     }
 
+    getContent(){
+        return this.elements;
+    }
+
     hasBusyElements(): boolean {
         for (let index = 0; index < this.elements.length; index++) {
             if (this.elements.at(index).getStatus() == 'busy') {
@@ -56,41 +60,43 @@ export class Buffer {
         return false;
     }
 
-    setRequestOrDoResuse(sourceNumber: number, number: number, timeOfPasting: number, sources: Source[]): Source[] {
-        let minimalInd = -1;
+    hasFreeElements(): boolean {
         for (let index = 0; index < this.elements.length; index++) {
             if (this.elements.at(index).getStatus() == 'free') {
-                minimalInd = index;
-                break;
+                return true;
             }
         }
-        if (minimalInd == -1) {////свободных мест в буфере нет
-            this.elements.at(minimalInd).setRequest(sourceNumber, number, timeOfPasting);
-            for (let index = 0; index < this.elements.length; index++) {
+        return false;
+    }
+
+    setRequestOrDoResuse(sourceNumber: number, number: number, timeOfPasting: number, sources: Source[]) {
+        if (!this.hasFreeElements()) {////в буфере нет свободных мест
+            for (let index = 0; index < this.elements.length; index++) {///находим источник заявки и помечаем в нем отказ
                 if (sources.at(index).getNumber() == sourceNumber) {
                     sources[index].refuseRequest();
                 }
             }
-            currentEvent.set("Заявке от источника " + sourceNumber + "с порядковый номером " + number + "было отказано в обслуживании");
-            // buffer.set(this);
-
+            currentEvent.set("Заявке от источника " + sourceNumber + " с порядковый номером " + number + " было отказано в обслуживании");
         }
         else {
-            this.elements.at(minimalInd).setRequest(sourceNumber, number, timeOfPasting);
-            // for (let index = 0; index < this.elements.length; index++) {
-            //     if (sources.at(index).getNumber() == sourceNumber) {
-            //         sources[index].refuseRequest();
-            //     }
-            // }
+            let minimalInd = 0;
+            for (let index = 0; index < this.elements.length; index++) {
+                if (this.elements.at(index).getStatus() == 'free') {///находим первый свободный элемент
+                    minimalInd = index;
+                    break;
+                }
+            }
+            this.elements.at(minimalInd).setRequest(sourceNumber, number, timeOfPasting);///ставим заявку на элемент буфера
+            currentEvent.set("Заявка от источника " + sourceNumber + " с порядковый номером " + number + " поставлена на "+Number(Number(minimalInd)+Number(1))+" элемент буфера");
         }
-        return sources;////обновлять sources этим значением после выполнения метода
+        buffer.set(this);
     }
 
     getRequest(sources: Source[], requests_amount: number, currentTime_: number) {
         let elemIndex = -1;
         let minimalSource = sources.length + 1;
         let minimalRequest = requests_amount + 1;
-        for (let index = 0; index < this.elements.length; index++) {////находим занятую ячейку с источником минимального номером
+        for (let index = 0; index < this.elements.length; index++) {////находим занятую ячейку с источником минимального номера
             if ((this.elements.at(index).getSourceNumber() < minimalSource) && (this.elements.at(index).getStatus() == 'busy')) {
                 minimalSource = this.elements.at(index).getSourceNumber();
             }
@@ -114,6 +120,8 @@ export class Buffer {
 
         requestSource.set(minimalSource);
         requestNumber.set(minimalRequest);
+
+        buffer.set(this);
         // return { [minimalSource]:minimalRequest}
 
     }

@@ -1,4 +1,4 @@
-import { currentEvent, recievers } from './store.js';
+import { currentEvent, currentTime, recievers } from './store.js';
 import type { Source } from './Source.js';
 
 export class Receiver {
@@ -37,11 +37,12 @@ export class Receiver {
                 return this.workTime;
         }
 
-        setRequest(sourceNumber: number, number: number,  lambda: number, sources: Source[], recievers_: Receiver[]) {
+        setRequest(sourceNumber: number, number: number,  lambda: number, sources: Source[], recievers_: Receiver[],currentTime:number) {
                 this.status = 'busy';
                 this.requestSource = sourceNumber;
                 this.requestNumber = number;
                 let proccesingTime = this.generateFreeTime(lambda);
+                this.freeTime=Number(Number(currentTime)+Number(proccesingTime));
                 let sources_amount = sources.length;
                 for (let index = 0; index < sources_amount; index++) {
                         if (sources.at(index).getNumber == sourceNumber) {
@@ -49,19 +50,18 @@ export class Receiver {
                         }
                 }
                 this.workTime+=proccesingTime;
-                let sortedR = recievers_.slice().sort((a, b) => a.freeTime - b.freeTime);
-                recievers.set(sortedR);
                 currentEvent.set("Заявка от источника "+sourceNumber+" под номером №"+ number+" поставлена на прибор "+this.number);
         }
 
         setFreeStatus(){
                 this.status='free';
+                this.requestSource=0;
+                this.requestNumber=0;
                 currentEvent.set("Прибор "+this.number+" освободился и ждёт заявки");
         }
 
         generateFreeTime(lambda: number): number {
                 let proccesingTime = Number((Math.log(Math.random() * Number.MAX_SAFE_INTEGER + 1) - Math.log(Number.MAX_SAFE_INTEGER)) / -lambda)
-                this.freeTime = this.freeTime + proccesingTime;
                 return proccesingTime;
         }
 }
