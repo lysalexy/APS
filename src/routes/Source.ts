@@ -4,7 +4,7 @@
 	 	private number: number = 0;
 	 	private genTime:  number= 0;
 	 	private bufferTime: number = 0;
-   	   /// private refusalTime: number = 0;
+   	    private refusedRequestsAmount: number = 0;
 		private proccessingTime: number =0;
 		private generatedRequestsAmount: number = 0;
 		
@@ -13,7 +13,7 @@
 			this.number = index;
 			this.genTime = 0.0; 
 			this.bufferTime = 0;
-			///this.refusalTime = 0;
+			this.refusedRequestsAmount = 0;
 			this.generatedRequestsAmount = 0;
 		}
 
@@ -33,9 +33,9 @@
 			return this.proccessingTime;
 		}
 
-		// getRefusalTime():number{
-		// 	return this.refusalTime
-		// }
+		getRefusedRequestsAmount():number{
+			return this.refusedRequestsAmount;
+		}
 
 		getGeneratedRequestsAmount():number{
 			return this.generatedRequestsAmount;
@@ -62,6 +62,10 @@
 		updateBufferTime(newBufferTime:number){
 			this.bufferTime+=newBufferTime;
 
+		}
+
+		refuseRequest(){
+			this.refusedRequestsAmount+=1;
 		}
 	}
 

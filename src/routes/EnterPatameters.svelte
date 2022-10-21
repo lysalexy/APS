@@ -35,7 +35,6 @@
 			rec.push(receiver);
 		}
 		recievers.set(rec);
-
 		currentEvent.set("Начало моделирования")
 
 		// console.log($buffer);
