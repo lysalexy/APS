@@ -1,65 +1,57 @@
-<script>
-	import { buffer, sources, recievers } from './store.js';
+<script lang="ts">
+	import { buffer, sources, recievers, summaryAmountOfRequests,alfa,beta, lambda, currentEvent} from './store.js';
 	import { Button, Row, Col, Input, Label } from 'sveltestrap';
+    import {Source} from './Source';
+    ///import Source from './Source.svelte';
+    import {Receiver} from './Receiver';
+    import {Buffer} from './Buffer';
+	
 
 	async function doDebug() {
-		let n = document.getElementById('get_N').value;
-		let alfa = document.getElementById('get_alfa').value;
-		let beta = document.getElementById('get_beta').value;
+		summaryAmountOfRequests.set(document.getElementById('get_N').value);
+		alfa.set(document.getElementById('get_alfa').value);
+		beta.set(document.getElementById('get_beta').value);
+        lambda.set(document.getElementById('get_lambda').value);
 		let source_amount = document.getElementById('get_source_amount').value;
 		let reciever_amount = document.getElementById('get_reciever_amount').value;
 		let buffer_size = document.getElementById('get_buffer_size').value;
-		let number = 0;
-
-		let buf = [];
-		for (let index = 0; index < buffer_size; index++) {
-			let elem = {
-				sourceNumber: 0,
-				number: 0,
-				status: 'free',
-				timeOfPasting: 0
-			};
-			buf.push(elem);
-			number = number + 1;
-		}
+		
+		let buf = new Buffer(buffer_size);
+	
 		buffer.set(buf);
 
 		let sor = [];
 		for (let index = 0; index < source_amount; index++) {
-			let source = {
-				number: 0,
-				genTime: index, // генерируем для источника время по нужному закону
-				bufFerTime: 0,
-				refusalTime: 0,
-				generatedRequestsAmount: 0
-			};
+            let source = new Source(index+1);
+			source.generateNewRequestTime($alfa,$beta);
 			sor.push(source);
-			number = number + 1;
 		}
 		sources.set(sor);
 
 		let rec = [];
 		for (let index = 0; index < reciever_amount; index++) {
-			let reciever = {
-				number: 0,
-				status: 'waiting',
-				freeTime: 100 - index, // генерируем для приёмника время по нужному закону
-				requestSource: 0,
-				requestNumber: 0,
-				workTime: 0
-			};
-			rec.push(reciever);
-			number = number + 1;
+            let receiver = new Receiver(index+1);
+            receiver.generateFreeTime($lambda)
+			rec.push(receiver);
 		}
 		recievers.set(rec);
+
+		currentEvent.set("Начало моделирования")
 
 		// console.log($buffer);
 		// console.log($sources);
 		// console.log($recievers);
-		let sortedR = $recievers.slice().sort((a, b) => a.freeTime - b.freeTime);
-		let sortedS = $sources.slice().sort((a, b) => a.genTime - b.genTime);
-		recievers.set(sortedR);
-		sources.set(sortedS);
+		// await new Promise(r => setTimeout(r, 2000));
+		// $sources.at(1).generateNewRequest($alfa,$beta);
+		// console.log($sources);
+		// await new Promise(r => setTimeout(r, 2000));
+		// let sortedR = $recievers.slice().sort((a, b) => a.freeTime - b.freeTime);
+		// let sortedS = $sources.slice().sort((a, b) => a.genTime - b.genTime);
+		// recievers.set(sortedR);
+		// sources.set(sortedS);
+		// console.log($sources);
+		
+
 	}
 </script>
 
@@ -105,7 +97,18 @@
 		</Col>
 	</Row>
 
+    <br />
+
+    <Row>
+		<Col sm="3">
+			<Label for="get_lambda"><strong>lambda</strong></Label>
+		</Col>
+        <Col sm="6">
+			<Input type="number" id="get_lambda" placeholder="Введите коэффициент при экспоненте во времени обслуживания" />
+		</Col>
+	</Row>
 	<br />
+
     <Row>
 		<Col sm="3">
 			<Label for="get_source_amount"><strong>число источников</strong></Label>
@@ -130,7 +133,7 @@
 
     <Row>
 		<Col sm="3">
-			<Label for="get_buffer_size"><strong>число приёмников</strong></Label>
+			<Label for="get_buffer_size"><strong>размер буфера</strong></Label>
 		</Col>
         <Col sm="6">
 			<Input type="number" id="get_buffer_size" placeholder="Введите размер буфера"/>

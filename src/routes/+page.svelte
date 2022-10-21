@@ -1,7 +1,14 @@
-<script>
+<script lang="ts">
+	import {currentEvent, mode} from './store.js';
 	import EnterParameters from './EnterPatameters.svelte';
-	import { currentTime } from './store.js';
 	import { Button, Row, Col} from 'sveltestrap';
+	import OneStep from './OneStep.svelte';
+
+	function setStepMode(){
+		mode.set('step');
+		console.log($mode);
+	}
+
 </script>
 
 <link
@@ -23,7 +30,7 @@
 			<br />
 			<Row>
 				<Col sm="4">
-					<Button color="primary">Пошаговый режим</Button>
+					<Button color="primary" on:click={setStepMode}>Пошаговый режим</Button>
 				</Col>
 				<Col sm="6">
 					<Button color="primary">Автоматический режим</Button>
@@ -32,8 +39,15 @@
 			<br />
 		</div>
 		<div class="flex-item">
-			<h3><strong>Выберите режим работы</strong></h3>
-			<h3><strong>{$currentTime}</strong></h3>
+			<!-- <h3>{$currentEvent}</h3> -->
+			{#if ($mode=='step')}
+			<OneStep/>
+			{/if}
+			{#if ($mode=='mode')}
+			<!-- здесь компонент для авторежима -->
+			{/if}
+			<!-- <h3><strong>Выберите режим работы</strong></h3>
+			<h3><strong>{$currentTime}</strong></h3> -->
 		</div>
 	</div>
 </body>
@@ -49,7 +63,7 @@
 	#flex-container > .flex-item {
 		-webkit-flex: auto;
 		flex: auto;
-		margin-top: 50px;
+		margin-top: 30px;
 		margin-left: 60px;
 	}
 </style>
