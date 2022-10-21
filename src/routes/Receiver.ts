@@ -1,4 +1,5 @@
 import { currentEvent, recievers } from './store.js';
+import type { Source } from './Source.js';
 
 export class Receiver {
         private number: number = 0;
@@ -47,9 +48,15 @@ export class Receiver {
                                 sources[index].updateProccesingTime(proccesingTime);
                         }
                 }
+                this.workTime+=proccesingTime;
                 let sortedR = recievers_.slice().sort((a, b) => a.freeTime - b.freeTime);
                 recievers.set(sortedR);
                 currentEvent.set("Заявка от источника "+sourceNumber+" под номером №"+ number+" поставлена на прибор "+this.number);
+        }
+
+        setWaitingStatus(){
+                this.status='waiting';
+                currentEvent.set("Источник "+this.number+" освободился и ждёт заявки");
         }
 
         generateFreeTime(lambda: number): number {

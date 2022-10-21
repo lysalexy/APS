@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { buffer, sources, recievers, summaryAmountOfRequests,finishedRequests, alfa,beta,lambda, currentTime, currentEvent,generatedRequests} from './store.js';
-	import { Button, Row, Col, Input, Label } from 'sveltestrap';
+	import { buffer, sources, recievers, summaryAmountOfRequests,finishedRequests, alfa,beta,lambda, currentTime, currentEvent,generatedRequests,requestSource,requestNumber} from './store.js';
+	import { Button, Row, Col, Table} from 'sveltestrap';
     import {Source} from './Source';
     ///import Source from './Source.svelte';
     import {Receiver} from './Receiver';
@@ -39,9 +39,9 @@
         else{
             if ($sources.at(0).genTime < $recievers.at(0).freeTime)//ближайшее событие-генерация новой заявки
             {
-                currentTime.set($sources.at(0).genTime);
+                currentTime.set($sources.at(0).getGenTime());///
                 $sources.at(0).generateNewRequest($alfa, $beta, $sources);
-                generatedRequests.update(count=>count+1);
+                ////generatedRequests.update(count=>count+1);
                 let recievers_amount = $recievers.length;
                 let minimalFreeIndex =-1;
                 for (let index = 0; index < recievers_amount; index++) {
@@ -52,15 +52,27 @@
                 }
                 if (minimalFreeIndex!=-1)///если есть свободные приёмники
                 {///ставим заявку на прибор
-                    $recievers.at(minimalFreeIndex).setRequest($sources.at(0).getNumber(), $sources.at(0).getGeneratedRequestsAmount(),$lambda, $sources, $recievers);
-
+                    requestSource.set($sources.at(0).getNumber());
+                    requestNumber.set($sources.at(0).getGeneratedRequestsAmount());
+                    ///$recievers.at(minimalFreeIndex).setRequest($sources.at(0).getNumber(), $sources.at(0).getGeneratedRequestsAmount(),$lambda, $sources, $recievers);
+                    $recievers.at(0).setRequest($requestSource, $requestNumber,  $lambda, $sources, $recievers);
                 }
                 else{///ставим заявку в буфер или получаем отказ в случае его наполненности
                     $buffer.setRequestOrDoResuse($sources.at(0).getNumber(),$sources.at(0).getGeneratedRequestsAmount(),$currentTime,$sources);
                 }
 
             }
-
+            else{//ближайшее событие-освобождение источника
+                finishedRequests.set(update(count=>count+1));///увеличиваем число обработанных заявок
+                currentTime.set($recievers.at(0).getFreeTime());
+                if($buffer.hasBusyElements()){///в буфере есть заявки
+                    $buffer.getRequest($sources, $generatedRequests, $currentTime);
+                    $recievers.at(0).setRequest($requestSource, $requestNumber,  $lambda, $sources, $recievers);
+                }
+                else{//в буфере нет заявок
+                    $recievers.at(0).setWaitingStatus();
+                }
+            }
         }
         console.log($buffer);
 		console.log($sources);
@@ -79,12 +91,12 @@
 <meta charset="utf-8" />
 
 <component>
-	<h3><strong>Пошаговый режим</strong></h3>
+	<h1><strong>Пошаговый режим</strong></h1>
     <br />
     <h4><strong>Время: </strong>{$currentTime}</h4>
     <br />
     <h4><strong>Событие: </strong>{$currentEvent}</h4>
-
+    <br />
     <Row>
 		<Col sm="6">
 		</Col>
@@ -92,5 +104,13 @@
 			<Button color="primary" on:click={doStep}>Сделать шаг</Button>
 		</Col>
 	</Row>
+
+    <h4><strong>Источники </strong>{$currentTime}</h4>
+    let sortedSByNumber = $recievers.slice().sort((a, b) => a.get - b.freeTime);
 	<!-- тут потом выводим таблицы -->
+    <h4><strong>Приёмники </strong>{$currentTime}</h4>
+	<!-- тут потом выводим таблицы -->
+    <h4><strong>Буфер</strong>{$currentTime}</h4>
+
+
 </component>
