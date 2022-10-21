@@ -40,11 +40,11 @@
             if ($sources.at(0).genTime < $recievers.at(0).freeTime)//ближайшее событие-генерация новой заявки
             {
                 currentTime.set($sources.at(0).genTime);
-                $sources.at(0).generateNewRequest($alfa, $beta);
+                $sources.at(0).generateNewRequest($alfa, $beta, $sources);
                 generatedRequests.update(count=>count+1);
                 let recievers_amount = $recievers.length;
                 let minimalFreeIndex =-1;
-                for (let index = 0; index < sources_amount; index++) {
+                for (let index = 0; index < recievers_amount; index++) {
                     if ($recievers.at(index).getStatus()=='free'){
                         minimalFreeIndex=index;
                         break;
@@ -62,6 +62,9 @@
             }
 
         }
+        console.log($buffer);
+		console.log($sources);
+		console.log($recievers);
 
 		
 	}

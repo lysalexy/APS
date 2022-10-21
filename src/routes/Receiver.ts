@@ -13,26 +13,26 @@ export class Receiver {
                 this.number = index;
         }
 
-        get getNumber() {
+        getNumber():number {
                 return this.number;
         }
 
-        get getStatus() {
+        getStatus():string {
                 return this.status;
         }
 
-        get getFreeTime() {
+        getFreeTime():number {
                 return this.freeTime;
         }
 
-        get getRequestSourse() {
+        getRequestSourse():number {
                 return this.requestSource;
         }
-        get getRequestNumber() {
+        getRequestNumber():number {
                 return this.requestNumber;
         }
 
-        get getWorkTime() {
+        getWorkTime():number {
                 return this.workTime;
         }
 

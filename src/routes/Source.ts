@@ -17,24 +17,28 @@
 			this.generatedRequestsAmount = 0;
 		}
 
-		get getNumber() {
+		getNumber():number {
 			return this.number;
 		}
 
-		get getGenTime() {
+		getGenTime():number {
 			return this.genTime;
 		}
 
-		get getBufferTime() {
+		getBufferTime():number {
 			return this.bufferTime;
 		}
 
-		get getProccessingTime(){
+		getProccessingTime():number{
 			return this.proccessingTime;
 		}
 
-		get getRefusalTime(){
+		getRefusalTime():number{
 			return this.refusalTime
+		}
+
+		getGeneratedRequestsAmount():number{
+			return this.generatedRequestsAmount;
 		}
 
 		generateNewRequest(alfa:number, beta:number, sources_:Source[]){

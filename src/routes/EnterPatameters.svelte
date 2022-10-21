@@ -44,11 +44,11 @@
 		// await new Promise(r => setTimeout(r, 2000));
 		// $sources.at(1).generateNewRequest($alfa,$beta);
 		// console.log($sources);
-		// await new Promise(r => setTimeout(r, 2000));
-		// let sortedR = $recievers.slice().sort((a, b) => a.freeTime - b.freeTime);
-		// let sortedS = $sources.slice().sort((a, b) => a.genTime - b.genTime);
-		// recievers.set(sortedR);
-		// sources.set(sortedS);
+		//await new Promise(r => setTimeout(r, 2000));
+		let sortedR = $recievers.slice().sort((a, b) => a.freeTime - b.freeTime);
+		let sortedS = $sources.slice().sort((a, b) => a.genTime - b.genTime);
+		recievers.set(sortedR);
+		sources.set(sortedS);
 		// console.log($sources);
 		
 
