@@ -7,7 +7,7 @@ class BufferElem {
     private status: string = 'free';
     private timeOfPasting: number = 0;
 
-    get getStatus() {
+    getStatus():string {
         return this.status;
     }
 
@@ -31,7 +31,7 @@ export class Buffer {
     setRequestOrDoResuse(sourceNumber: number, number: number, timeOfPasting: number, sources: Source[]): Source[] {
         let minimalInd = -1;
         for (let index = 0; index < this.elements.length; index++) {
-            if (this.elements.at(index).getStatus == 'free') {
+            if (this.elements.at(index).getStatus()== 'free') {
                 minimalInd = index;
                 break;
             }
@@ -44,7 +44,7 @@ export class Buffer {
         }
         else {
             for (let index = 0; index < this.elements.length; index++) {
-                if (sources.at(index).getNumber == sourceNumber) {
+                if (sources.at(index).getNumber() == sourceNumber) {
                     sources[index].refuseRequest();
                 }
             }
