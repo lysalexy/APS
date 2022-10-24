@@ -1,19 +1,20 @@
 
-	import { currentEvent, sources, generatedRequests} from './store.js';
+	import { currentEvent, refusedRequests, generatedRequests} from './store.js';
 	export class Source {
 	 	private number: number = 0;
 	 	private genTime:  number= 0;
-	 	private bufferTime: number = 0;
+	 	private bufferTime: number[];////время в буфере
    	    private refusedRequestsAmount: number = 0;
-		private proccessingTime: number =0;
+		private proccessingTime: number[];////время обслуживания
 		private generatedRequestsAmount: number = 0;
 		
 
 		constructor(index:number) {
 			this.number = index;
 			this.genTime = 0.0; 
-			this.bufferTime = 0;
+			this.bufferTime = [];
 			this.refusedRequestsAmount = 0;
+			this.proccessingTime=[];
 			this.generatedRequestsAmount = 0;
 		}
 
@@ -25,11 +26,11 @@
 			return this.genTime;
 		}
 
-		getBufferTime():number {
+		getBufferTime():number[] {
 			return this.bufferTime;
 		}
 
-		getProccessingTime():number{
+		getProccessingTime():number[] {
 			return this.proccessingTime;
 		}
 
@@ -53,17 +54,18 @@
 		}
 
 		updateProccesingTime(newProccesingTime:number){
-			this.proccessingTime+=newProccesingTime;
+			this.proccessingTime.push(newProccesingTime);
 
 		}
 
 		updateBufferTime(newBufferTime:number){
-			this.bufferTime+=newBufferTime;
+			this.bufferTime.push(newBufferTime);
 
 		}
 
 		refuseRequest(){
 			this.refusedRequestsAmount+=1;
+			refusedRequests.update(count=>count+1);
 		}
 	}
 

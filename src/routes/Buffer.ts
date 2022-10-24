@@ -71,7 +71,7 @@ export class Buffer {
 
     setRequestOrDoResuse(sourceNumber: number, number: number, timeOfPasting: number, sources: Source[]) {
         if (!this.hasFreeElements()) {////в буфере нет свободных мест
-            for (let index = 0; index < this.elements.length; index++) {///находим источник заявки и помечаем в нем отказ
+            for (let index = 0; index < sources.length; index++) {///находим источник заявки и помечаем в нем отказ
                 if (sources.at(index).getNumber() == sourceNumber) {
                     sources[index].refuseRequest();
                 }
@@ -121,6 +121,6 @@ export class Buffer {
         requestSource.set(minimalSource);
         requestNumber.set(minimalRequest);
 
-        buffer.set(this);
+        // buffer.set(this);
     }
 }

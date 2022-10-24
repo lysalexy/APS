@@ -1,47 +1,55 @@
-<script lang="ts">
-	import { buffer, sources, recievers, summaryAmountOfRequests,finishedRequests, alfa,beta,lambda, currentTime, currentEvent,generatedRequests,requestSource,requestNumber} from './store.js';
-	import { Button, Row, Col, Table} from 'sveltestrap';
-    // import {Source} from './Source';
-    //import {Receiver} from './Receiver';
-    // import {Buffer, BufferElem} from './Buffer';
+<!-- <script context="module">
+    import { get } from 'svelte/store';
+    import { buffer, sources, recievers, summaryAmountOfRequests,finishedRequests, alfa,beta,lambda, currentTime, currentEvent,generatedRequests,requestSource,requestNumber} from './store.js';
 
-    let sourceColumns = ["Номер", "Время генерации следующей заявки", "Всего сгенерировано заявок", "Число отказов"];
+    import {sourcesForStepMode,recieversForStepMode,bufferForStepMode} from "./store"
+	// import Source from './Source.svelte';
+   
     let currentSources =[""];
 
-    let receiverColumns = ["Номер", "Время освобождения прибора", "Текущий статус", "Источник заявки","Номер заявки в источнике"];
     let currentReceivers=[""];
 
-    let bufferColumns = ["Позиция", "Время постановки заявки", "Источник заявки", "Номер заявки в источнике"];
     let currentBuffer=[""];
 
-    function generateRequest(busyReceivers){
-        currentTime.set($sources.at(0).getGenTime());///устанавливаем текущее время
-                $sources.at(0).generateNewRequest($alfa, $beta, $sources);
-                    
-                let recieversSortedSByNumber = $recievers.slice().sort((a, b) => a.getNumber() - b.getNumber());////сортируем приборы по номеру
-                    
-                if (busyReceivers.length==$recievers.length){///если нет свободных приборов, ставим заявку в буфер или получаем отказ в случае его наполненности
-                    $buffer.setRequestOrDoResuse($sources.at(0).getNumber(),$sources.at(0).getGeneratedRequestsAmount(),$currentTime,$sources);
-                }
-                 else{///если есть свободные приборы, ставим заявку на прибоp
-                    let minimalFreeIndex =-1;
-                    let recieversSortedSByNumber = $recievers.slice().sort((a, b) => a.getNumber() - b.getNumber());////сортируем приборы по номеру
-                    for (let index = 0; index < recieversSortedSByNumber.length; index++) {
-                        if (recieversSortedSByNumber.at(index).getStatus()=='free'){///берем первый свободный
-                              minimalFreeIndex=index;
-                            break;
-                        }
-                    }
-                    requestSource.set($sources.at(0).getNumber());
-                    requestNumber.set($sources.at(0).getGeneratedRequestsAmount());
-                    recieversSortedSByNumber.at(minimalFreeIndex).setRequest($sources.at(0).getNumber(), $sources.at(0).getGeneratedRequestsAmount(),$lambda, $sources, $recievers,$currentTime);
-                    
-                    let sortedR = $recievers.slice().sort((a, b) => a.freeTime - b.freeTime);
-                    recievers.set(sortedR);
+    let allSources = get(sources);
+    let allRecievers=get(recievers);
+    let allBuffer=get(buffer);
 
-                    }
-                    let sortedS = $sources.slice().sort((a, b) => a.genTime - b.genTime);
-                    sources.set(sortedS);
+    let firstSource = allSources.at(0);
+
+    function generateRequest(busyReceivers){
+        // let allSources = get(sources);
+        // let firstSource = get(sources).at(0);
+
+        // let allRecievers=get(recievers);
+
+        currentTime.set(firstSource.getGenTime());///устанавливаем текущее время
+        firstSource.generateNewRequest(get(alfa), get(beta),allSources);
+                    
+        let recieversSortedSByNumber = allRecievers.slice().sort((a, b) => a.getNumber() - b.getNumber());////сортируем приборы по номеру
+                    
+        if (busyReceivers.length==allRecievers.length){///если нет свободных приборов, ставим заявку в буфер или получаем отказ в случае его наполненности
+             allBuffer.setRequestOrDoResuse(firstSource.getNumber(),firstSource.getGeneratedRequestsAmount(),get(currentTime),allSources);
+        }
+        else{///если есть свободные приборы, ставим заявку на прибоp
+            let minimalFreeIndex =-1;
+            let recieversSortedSByNumber = allRecievers.slice().sort((a, b) => a.getNumber() - b.getNumber());////сортируем приборы по номеру
+            for (let index = 0; index < recieversSortedSByNumber.length; index++) {
+                if (recieversSortedSByNumber.at(index).getStatus()=='free'){///берем первый свободный
+                    minimalFreeIndex=index;
+                    break;
+                }
+            }
+            requestSource.set(firstSource.getNumber());
+            requestNumber.set(firstSource.getGeneratedRequestsAmount());
+            recieversSortedSByNumber.at(minimalFreeIndex).setRequest(firstSource.getNumber(), firstSource.getGeneratedRequestsAmount(),get(lambda), allSources, allRecievers,get(currentTime));
+                    
+            let sortedR = allRecievers.slice().sort((a, b) => a.freeTime - b.freeTime);
+            recievers.set(sortedR);
+
+            }
+            let sortedS = allSources.slice().sort((a, b) => a.genTime - b.genTime);
+            sources.set(sortedS);
     }
 
     function freeReciever(busyReceivers){
@@ -49,10 +57,12 @@
                 
         currentTime.set(busyReceivers.at(0).getFreeTime());///текущее время-время освобождения приёмника
 
-        if($buffer.hasBusyElements()){///в буфере есть заявки
-            $buffer.getRequest($sources, $generatedRequests, $currentTime);///получаем заявку из буфера
-            busyReceivers.at(0).setRequest($requestSource, $requestNumber,  $lambda, $sources, $recievers,$currentTime);///ставим заявку на освободившийся прибор
-            let sortedR = $recievers.slice().sort((a, b) => a.freeTime - b.freeTime);
+        let all
+
+        if(allBuffer.hasBusyElements()){///в буфере есть заявки
+            allBuffer.getRequest(allSources, get(generatedRequests), get(currentTime));///получаем заявку из буфера
+            busyReceivers.at(0).setRequest(get(requestSource), get(requestNumber),  get(lambda), allSources, allRecievers,get(currentTime));///ставим заявку на освободившийся прибор
+            let sortedR = allRecievers.slice().sort((a, b) => a.freeTime - b.freeTime);
             recievers.set(sortedR);
         }
         else{//в буфере нет заявок
@@ -62,31 +72,33 @@
 
 	export function doStep() {
         let busyReceivers=[];
-        for (let index = 0; index < $recievers.length; index++) {
-            if ($recievers.at(index).getStatus()=='busy'){
-                 busyReceivers.push($recievers.at(index));
+        for (let index = 0; index < allRecievers.length; index++) {
+            if (allRecievers.at(index).getStatus()=='busy'){
+                 busyReceivers.push(allRecievers.at(index));
                  }
         }
 
-        if ($generatedRequests==$summaryAmountOfRequests)///заканчиваем генерацию заявок
+        if (get(generatedRequests)==get(summaryAmountOfRequests))///заканчиваем генерацию заявок
         {
             ///поменять время генерации след заявки во всех источниках на -
-            if ($finishedRequests<$summaryAmountOfRequests)
-            {
-                freeReciever(busyReceivers);
+            if (get(finishedRequests)<get(summaryAmountOfRequests)){
+                if ((Number(busyReceivers.length)!=Number(0))){//если есть занятые приборы
+                    freeReciever(busyReceivers);
+                }
+            }
+            else{
+                currentEvent.set("Моделирование закончено. Все заявки сгенерированы и обработаны.");
             }
         }       
         else{
-            if (Number(busyReceivers)==Number(0))//если нет занятых источников
+            if (Number(busyReceivers.length)==Number(0))//если нет занятых приборов
             {
                 //ближайшее событие-генерация новой заявки
                 generateRequest(busyReceivers);
 
             }
-            else{//есть занятые приёмники
-                if ($sources.at(0).genTime < busyReceivers.at(0).freeTime)//ближайшее событие-генерация новой заявки
-                
-                {
+            else{//есть занятые приборы
+                if (firstSource.genTime < busyReceivers.at(0).freeTime){//ближайшее событие-генерация новой заявки
                     generateRequest(busyReceivers);
                 }
                 else{//ближайшее событие-освобождение прибора
@@ -95,117 +107,35 @@
            }
         }
 
-        currentSources=[];
-        let sortedSByNumber = $sources.slice().sort((a, b) => a.getNumber() - b.getNumber());
+        ////currentSources=[];
+        let sortedSByNumber = allSources.slice().sort((a, b) => a.getNumber() - b.getNumber());
         for (let index = 0; index < sortedSByNumber.length; index++) {
             let currSourse = sortedSByNumber.at(index);
             currentSources.push([currSourse.getNumber(),currSourse.getGenTime(),currSourse.getGeneratedRequestsAmount(),currSourse.getRefusedRequestsAmount()]);
         }
+        sourcesForStepMode.set(currentSources);
 
         currentReceivers=[];
-        let sortedRByNumber = $recievers.slice().sort((a, b) => a.getNumber() - b.getNumber());
+        let sortedRByNumber = allRecievers.slice().sort((a, b) => a.getNumber() - b.getNumber());
         for (let index = 0; index < sortedRByNumber.length; index++) {
             let currReceiver = sortedRByNumber.at(index);
             currentReceivers.push([currReceiver.getNumber(),currReceiver.getFreeTime(),currReceiver.getStatus(),currReceiver.getRequestSource(), currReceiver.getRequestNumber()]);
         }
+        recieversForStepMode.set(currentReceivers);
 
         currentBuffer=[];
-        for (let index = 0; index < $buffer.getContent().length; index++) {
-            let currElem = $buffer.getContent().at(index);
+        for (let index = 0; index < allBuffer.getContent().length; index++) {
+            let currElem = allBuffer.getContent().at(index);
             console.log(currElem);
             currentBuffer.push([(index+1), currElem.getTimeOfPasting(), currElem.getSourceNumber(), currElem.getNumber()]);
         }
+        bufferForStepMode.set(currentBuffer);
 		// console.log($sources);
 		// console.log($recievers);
         // console.log($buffer);
-        // console.log($generatedRequests);
-        // console.log($summaryAmountOfRequests);
-        // console.log($finishedRequests);
-}
-</script>
 
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
-	rel="stylesheet"
-	integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
-	crossorigin="anonymous"
-/>
-<meta charset="utf-8" />
+        console.log(get(sourcesForStepMode));
+        console.log(currentSources);
 
-<component>
-	<h1><strong>Пошаговый режим</strong></h1>
-    <br />
-    <h4><strong>Время: </strong>{$currentTime}</h4>
-    <br />
-    <h4><strong>Событие: </strong>{$currentEvent}</h4>
-    <br />
-    <Row>
-		<Col sm="6">
-		</Col>
-        <Col sm="3">
-			<Button color="primary" on:click={doStep}>Сделать шаг</Button>
-		</Col>
-	</Row>
-
-    <h4><strong>Источники </strong></h4>
-
-    <br />
-    <Table>
-        <tr>
-            {#each sourceColumns as column}
-                <th>{column}</th>
-            {/each}
-        </tr>
-
-        {#each currentSources as row}
-		<tr>
-			{#each row as cell}
-			<td contenteditable="true" bind:innerHTML={cell} />
-			{/each}
-		</tr>
-        {/each}
-        
-      </Table>
-    <br />
-    
-    <br />
-    <h4><strong>Приборы </strong></h4>
-    <Table>
-        <tr>
-            {#each receiverColumns as column}
-                <th>{column}</th>
-            {/each}
-        </tr>
-
-        {#each currentReceivers as row}
-		<tr>
-			{#each row as cell}
-			<td contenteditable="true" bind:innerHTML={cell} />
-			{/each}
-		</tr>
-        {/each}
-        
-      </Table>
-    <br />
-
-    <br />
-    <h4><strong>Буфер</strong></h4>
-    <Table>
-        <tr>
-            {#each bufferColumns as column}
-                <th>{column}</th>
-            {/each}
-        </tr>
-
-        {#each currentBuffer as row}
-		<tr>
-			{#each row as cell}
-			<td contenteditable="true" bind:innerHTML={cell} />
-			{/each}
-		</tr>
-        {/each}
-        
-      </Table>
-
-
-</component>
+    }
+</script> -->

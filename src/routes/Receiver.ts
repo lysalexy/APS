@@ -45,7 +45,7 @@ export class Receiver {
                 this.freeTime=Number(Number(currentTime)+Number(proccesingTime));
                 let sources_amount = sources.length;
                 for (let index = 0; index < sources_amount; index++) {
-                        if (sources.at(index).getNumber == sourceNumber) {
+                        if (sources.at(index).getNumber() == sourceNumber) {
                                 sources[index].updateProccesingTime(proccesingTime);
                         }
                 }
@@ -53,6 +53,9 @@ export class Receiver {
                 currentEvent.set("Заявка от источника "+sourceNumber+" под номером №"+ number+" поставлена на прибор "+this.number);
         }
 
+        // updateWorkTime(time:number){
+        //         this.workTime= Number(Number(this.workTime)+Number(time));
+        // }
         setFreeStatus(){
                 this.status='free';
                 this.requestSource=0;

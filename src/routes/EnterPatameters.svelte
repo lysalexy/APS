@@ -2,7 +2,6 @@
 	import { buffer, sources, recievers, summaryAmountOfRequests,alfa,beta, lambda, currentEvent} from './store.js';
 	import { Button, Row, Col, Input, Label } from 'sveltestrap';
     import {Source} from './Source';
-    ///import Source from './Source.svelte';
     import {Receiver} from './Receiver';
     import {Buffer} from './Buffer';
 	
@@ -35,7 +34,7 @@
 			rec.push(receiver);
 		}
 		recievers.set(rec);
-		currentEvent.set("Начало моделирования")
+		currentEvent.set("Начало моделирования");
 
 		let sortedR = $recievers.slice().sort((a, b) => a.freeTime - b.freeTime);
 		let sortedS = $sources.slice().sort((a, b) => a.genTime - b.genTime);

@@ -2,22 +2,23 @@
 	import {currentEvent, mode} from './store.js';
 	import EnterParameters from './EnterPatameters.svelte';
 	import { Button, Row, Col} from 'sveltestrap';
-	import OneStep from './OneStep.svelte';
+	import Modes from './Modes.svelte';
+	///import doAuto from './Modes.svelte';
+	// import StepMode from './StepMode.svelte'; 
+	// import AutoMode from './AutoMode.svelte';
 
 	function setStepMode(){
 		mode.set('step');
 		console.log($mode);
 	}
 
-</script>
+	function setAutoMode(){
+		mode.set('auto');
+		console.log($mode);
+		// {doAuto};
+	}
 
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
-	rel="stylesheet"
-	integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
-	crossorigin="anonymous"
-/>
-<meta charset="utf-8" />
+</script>
 
 <body>
 	<div id="flex-container">
@@ -33,21 +34,13 @@
 					<Button color="primary" on:click={setStepMode}>Пошаговый режим</Button>
 				</Col>
 				<Col sm="6">
-					<Button color="primary">Автоматический режим</Button>
+					<Button color="primary" on:click={setAutoMode}>Автоматический режим</Button>
 				</Col>
 			</Row>
 			<br />
 		</div>
 		<div class="flex-item">
-			<!-- <h3>{$currentEvent}</h3> -->
-			{#if ($mode=='step')}
-			<OneStep/>
-			{/if}
-			{#if ($mode=='mode')}
-			<!-- здесь компонент для авторежима -->
-			{/if}
-			<!-- <h3><strong>Выберите режим работы</strong></h3>
-			<h3><strong>{$currentTime}</strong></h3> -->
+			<Modes/>
 		</div>
 	</div>
 </body>
