@@ -122,9 +122,5 @@ export class Buffer {
         requestNumber.set(minimalRequest);
 
         buffer.set(this);
-        // return { [minimalSource]:minimalRequest}
-
     }
 }
-
-
