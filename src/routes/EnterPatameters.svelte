@@ -58,7 +58,7 @@
 	<br />
 
 	<Row>
-		<Col sm="3">
+		<Col sm="5">
 			<Label for="get_N"><strong>N</strong></Label>
 		</Col>
         <Col sm="6">
@@ -68,7 +68,7 @@
 	<br />
 
     <Row>
-		<Col sm="3">
+		<Col sm="5">
 			<Label for="get_alfa"><strong>alfa</strong></Label>
 		</Col>
         <Col sm="6">
@@ -79,7 +79,7 @@
 
     
     <Row>
-		<Col sm="3">
+		<Col sm="5">
 			<Label for="get_beta"><strong>beta</strong></Label>
 		</Col>
         <Col sm="6">
@@ -90,7 +90,7 @@
     <br />
 
     <Row>
-		<Col sm="3">
+		<Col sm="5">
 			<Label for="get_lambda"><strong>lambda</strong></Label>
 		</Col>
         <Col sm="6">
@@ -100,7 +100,7 @@
 	<br />
 
     <Row>
-		<Col sm="3">
+		<Col sm="5">
 			<Label for="get_source_amount"><strong>число источников</strong></Label>
 		</Col>
         <Col sm="6">
@@ -111,7 +111,7 @@
 	<br />
 
     <Row>
-		<Col sm="3">
+		<Col sm="5">
 			<Label for="get_reciever_amount"><strong>число приёмников</strong></Label>
 		</Col>
         <Col sm="6">
@@ -122,7 +122,7 @@
 	<br />
 
     <Row>
-		<Col sm="3">
+		<Col sm="5">
 			<Label for="get_buffer_size"><strong>размер буфера</strong></Label>
 		</Col>
         <Col sm="6">

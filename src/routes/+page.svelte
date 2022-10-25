@@ -1,11 +1,8 @@
 <script lang="ts">
-	import {currentEvent, mode} from './store.js';
+	import {mode} from './store.js';
 	import EnterParameters from './EnterPatameters.svelte';
 	import { Button, Row, Col} from 'sveltestrap';
 	import Modes from './Modes.svelte';
-	///import doAuto from './Modes.svelte';
-	// import StepMode from './StepMode.svelte'; 
-	// import AutoMode from './AutoMode.svelte';
 
 	function setStepMode(){
 		mode.set('step');
