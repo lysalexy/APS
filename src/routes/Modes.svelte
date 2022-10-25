@@ -7,6 +7,7 @@
     import { Button, Row, Col, Table} from 'sveltestrap';
 	////import Auto from './Auto.svelte';
 	///import type { Script } from 'svelte/types/compiler/interfaces.js';
+    let startMod=false;
 
     let sourceColumns = ["Номер", "Время генерации следующей заявки", "Всего сгенерировано заявок", "Число отказов"];
     let currentSources =[""];
@@ -133,20 +134,21 @@
             ////console.log(currElem);
             currentBuffer.push([(index+1), currElem.getTimeOfPasting(), currElem.getSourceNumber(), currElem.getNumber()]);
         }
-		// console.log($sources);
+		 ///console.log($sources);
 		// console.log($recievers);
-        // console.log($buffer);
+        ///console.log($buffer);
         // console.log($generatedRequests);
         // console.log($summaryAmountOfRequests);
         // console.log($finishedRequests);
         // console.log($refusedRequests);
     }
     export async function doAuto(){
+    // if ($mode=='auto'){
         let accuracyAchieved=false;
         let isFirstIteration=true;
         // console.log("inside");
         while(!accuracyAchieved){
-           let buf = new Buffer($buffer.length);
+           let buf = new Buffer($buffer.getContent().length);
            buffer.set(buf);
             
             let sor = [];
@@ -182,10 +184,10 @@
             requestNumber.set(0);
         while($currentEvent!=="Моделирование закончено. Все заявки сгенерированы и обработаны."){////собираем всю информацию по моделированию
             doStep();
-            console.log($summaryAmountOfRequests);
-            console.log($refusedRequests);
-            console.log($finishedRequests);
-            console.log($currentEvent);
+            // console.log($summaryAmountOfRequests);
+            // console.log($refusedRequests);
+            // console.log($finishedRequests);
+            // console.log($currentEvent);
             }
 
             let refReq=0;
@@ -213,8 +215,9 @@
            /// let al = 0.9;
             let b = 0.1;
             let newAmountOfRequests = Number(Number(t)*Number(t)*(1-$previousP))/Number(Number($previousP)*Number(b)*Number(b));
-            if((newAmountOfRequests<$summaryAmountOfRequests)){
+            if(Number(newAmountOfRequests)<Number($previousAmountOfRequests)){
                 accuracyAchieved=true;
+                console.log('меньше чем до этого');
             }
             if (Number(newAmountOfRequests)>Number(1000000)){
                 accuracyAchieved=true;
@@ -249,28 +252,48 @@
             for (let index = 0; index < currSourse.getProccessingTime().length; index++) {
                 summProccesingTime=Number(Number(currSourse.getProccessingTime().at(index))+Number(summProccesingTime));
             }
-            let TBP= summProccesingTime/sumAmount;
+
+            let TObsl;
+            if (Number(summProccesingTime)===Number(0)){
+                TObsl =0;
+            }
+            else{
+                TObsl = Number(Number(summProccesingTime)/Number(currSourse.getProccessingTime().length));
+            }
           
 
             let summBufferTime=0;
             for (let index = 0; index < currSourse.getBufferTime().length; index++) {
                 summBufferTime=Number(Number(currSourse.getBufferTime().at(index))+Number(summBufferTime));
             }
-            let TObsl = summBufferTime/sumAmount;
+            let TBP;
+            if(Number(summBufferTime)===Number(0)){
+                TBP=0;
+            }
+            else{
+                TBP= Number(Number(summBufferTime)/Number(currSourse.getBufferTime().length));
+            }
 
 
             let TPrep= Number(Number(TBP)+Number(TObsl));
+
             let dispBP=0;
-            let summBufferTime=0;
             for (let index = 0; index < currSourse.getBufferTime().length; index++) {
                 dispBP=Number((Number(currSourse.getBufferTime().at(index)-TBP)*Number(currSourse.getBufferTime().at(index)-TBP))+Number( dispBP));
             }
-            dispBP=dispBP/currSourse.getBufferTime().length
+            dispBP=Number(Number(dispBP)/Number(currSourse.getBufferTime().length));
+
+            let dispObsl=0;
+            for (let index = 0; index < currSourse.getProccessingTime().length; index++) {
+                dispObsl=Number((Number(currSourse.getProccessingTime().at(index)-TObsl)*Number(currSourse.getProccessingTime().at(index)-TObsl))+Number(dispObsl));
+            }
+            dispObsl=Number(Number(dispObsl)/Number(currSourse.getProccessingTime().length));
             
 
 
-            receiversStats.push([currReceiver.getNumber(),sumAmount, pRef, TPrep,TBP, TObsl]);
+            sourcesStats.push([currSourse.getNumber(),sumAmount, pRef, TPrep, TObsl,TBP,  dispObsl, dispBP]);
         }
+        startMod=true;
     }
 </script>
 
@@ -360,9 +383,10 @@
 		<Col sm="6">
 		</Col>
         <Col sm="3">
-            <Button color="primary" on:click={doAuto}>Сделать шаг</Button>
+            <Button color="primary" on:click={doAuto}>Выполнить моделирование</Button>
 		</Col>
 	</Row>
+    {#if (startMod==true)}
     <br />
     <h4><strong>Число заявок для доверительной точности 10% </strong>{$previousAmountOfRequests}</h4>
     <br />
@@ -409,5 +433,6 @@
         {/each}        
       </Table>
     <br />
+    {/if} 
     {/if} 
 </component>

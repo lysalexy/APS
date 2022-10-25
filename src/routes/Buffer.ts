@@ -89,7 +89,7 @@ export class Buffer {
             this.elements.at(minimalInd).setRequest(sourceNumber, number, timeOfPasting);///ставим заявку на элемент буфера
             currentEvent.set("Заявка от источника " + sourceNumber + " с порядковый номером " + number + " поставлена на "+Number(Number(minimalInd)+Number(1))+" элемент буфера");
         }
-        buffer.set(this);
+        ////buffer.set(this);
     }
 
     getRequest(sources: Source[], requests_amount: number, currentTime_: number) {
@@ -109,9 +109,11 @@ export class Buffer {
                 }
             }
         }
-        for (let index = 0; index < this.elements.length; index++) {///изменяем у соответствующего источника время нахождения заявок в буфере
+        for (let index = 0; index < sources.length; index++) {///изменяем у соответствующего источника время нахождения заявок в буфере
             if (sources.at(index).getNumber() == minimalSource) {
-                sources.at(index).updateBufferTime(currentTime_ - this.elements.at(elemIndex).getTimeOfPasting());///время нахождения в буфере - текущее-время постановки
+                let newBufferTime = Number(Number(currentTime_)-Number(this.elements.at(elemIndex).getTimeOfPasting()))
+                sources.at(index).updateBufferTime(newBufferTime);///время нахождения в буфере - текущее-время постановки
+                // console.log(newBufferTime);
             }
         }
 
