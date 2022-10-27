@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { previousAmountOfRequests, mode, buffer, sources, recievers, summaryAmountOfRequests,finishedRequests, alfa,beta,lambda, currentTime, 
-       refusedRequests, previousP, currentEvent,generatedRequests,requestSource,requestNumber} from './store.js';
+       refusedRequests, previousP, currentEvent,generatedRequests,requestSource,requestNumber, firstSummaryAmountOfRequests} from './store.js';
     import {Source} from './Source';
     import {Receiver} from './Receiver';
     import {Buffer} from './Buffer';
@@ -184,10 +184,6 @@
             requestNumber.set(0);
         while($currentEvent!=="Моделирование закончено. Все заявки сгенерированы и обработаны."){////собираем всю информацию по моделированию
             doStep();
-            // console.log($summaryAmountOfRequests);
-            // console.log($refusedRequests);
-            // console.log($finishedRequests);
-            // console.log($currentEvent);
             }
 
             let refReq=0;
@@ -195,16 +191,14 @@
                refReq=Number(Number(refReq)+Number($sources.at(index).getRefusedRequestsAmount()));
             }
 
-
-            // let currentP=Number(Number($refusedRequests)/Number($summaryAmountOfRequests));
-            console.log(refReq);
-            console.log($sources);
+            // console.log(refReq);
+            // console.log($sources);
             let currentP=Number(Number(refReq)/Number($summaryAmountOfRequests));
             if (!isFirstIteration){
                 if (Number((Math.abs(currentP-$previousP))<Number(0.1))){
                     accuracyAchieved=true;
-                    console.log(currentP);
-                    console.log($previousP);
+                    // console.log(currentP);
+                    // console.log($previousP);
                 }
             }
             else{
@@ -222,16 +216,64 @@
             if (Number(newAmountOfRequests)>Number(1000000)){
                 accuracyAchieved=true;
             }
-            console.log(currentP);
-            console.log($previousP);
+            // console.log(currentP);
+            // console.log($previousP);
             previousP.set(currentP);
             previousAmountOfRequests.set($summaryAmountOfRequests);
             summaryAmountOfRequests.set(Math.round(newAmountOfRequests));
-            console.log($summaryAmountOfRequests);
+            // console.log($summaryAmountOfRequests);
 
         }
 
         ////подсчёт показателей 
+        if (Number($firstSummaryAmountOfRequests)>Number($summaryAmountOfRequests))
+        {
+            summaryAmountOfRequests.set($firstSummaryAmountOfRequests);
+           /// console.log('here');
+            let buf = new Buffer($buffer.getContent().length);
+           buffer.set(buf);
+            
+            let sor = [];
+            for (let index = 0; Number(index) < Number($sources.length); index++) {
+            let source = new Source(index+1);
+			source.generateNewRequestTime($alfa,$beta);
+			sor.push(source);}
+            
+            sources.set(sor);
+            
+            let rec = [];
+            
+            for (let index = 0; Number(index) < Number($recievers.length); index++) {
+                let receiver = new Receiver(index+1);
+                receiver.generateFreeTime($lambda);
+                rec.push(receiver);
+            }
+            recievers.set(rec);
+
+            currentEvent.set("Начало моделирования");
+
+            let sortedR = $recievers.slice().sort((a, b) => a.freeTime - b.freeTime);
+            let sortedS = $sources.slice().sort((a, b) => a.genTime - b.genTime);
+
+
+            recievers.set(sortedR);
+            sources.set(sortedS);
+            currentTime.set(0);
+            finishedRequests.set(0);
+            generatedRequests.set(0);
+            refusedRequests.set(0);
+            
+            requestSource.set(0);
+            requestNumber.set(0);
+
+            while($currentEvent!=="Моделирование закончено. Все заявки сгенерированы и обработаны."){////собираем всю информацию по моделированию
+                // console.log('1');
+            doStep();
+            }
+            previousAmountOfRequests.set($firstSummaryAmountOfRequests);
+
+        }
+
         receiversStats=[];
         let sortedRByNumber = $recievers.slice().sort((a, b) => a.getNumber() - b.getNumber());
         for (let index = 0; index < sortedRByNumber.length; index++) {

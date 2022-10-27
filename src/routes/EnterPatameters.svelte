@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { buffer, sources, recievers, summaryAmountOfRequests,alfa,beta, lambda, currentEvent} from './store.js';
+	import { buffer, sources, recievers, summaryAmountOfRequests,alfa,beta, lambda, currentEvent, firstSummaryAmountOfRequests} from './store.js';
 	import { Button, Row, Col, Input, Label } from 'sveltestrap';
     import {Source} from './Source';
     import {Receiver} from './Receiver';
@@ -8,6 +8,7 @@
 
 	async function doDebug() {
 		summaryAmountOfRequests.set(document.getElementById('get_N').value);
+		firstSummaryAmountOfRequests.set(document.getElementById('get_N').value);
 		alfa.set(document.getElementById('get_alfa').value);
 		beta.set(document.getElementById('get_beta').value);
         lambda.set(document.getElementById('get_lambda').value);

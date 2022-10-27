@@ -12,6 +12,7 @@ export const finishedRequests = writable(0);
 export const generatedRequests = writable(0);
 export const refusedRequests = writable(0);
 export const summaryAmountOfRequests = writable(0);
+export const firstSummaryAmountOfRequests = writable(0);
 
 export const requestSource =writable(0);
 export const requestNumber = writable(0);
