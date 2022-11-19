@@ -14,6 +14,9 @@
 		console.log($mode);
 		// {doAuto};
 	}
+	function setOptimalMode(){
+		mode.set('optimal');
+	}
 
 </script>
 
@@ -32,6 +35,9 @@
 				</Col>
 				<Col sm="6">
 					<Button color="primary" on:click={setAutoMode}>Автоматический режим</Button>
+				</Col>
+				<Col sm="2">
+					<Button color="primary" on:click={setOptimalMode}>Оптимальная конфигурация</Button>
 				</Col>
 			</Row>
 			<br />

@@ -25,6 +25,10 @@
     let receiverStatsColumns = ["Номер", "Коэффициент использования"];
     let receiversStats=[""];
 
+    let configurationColumns = ["Число источников","Число приёмников","Число ячеек в буфере", "Максимальная вероятность отказа",
+    "Минимальная загруженность приборов","Максимальное время пребывания в системе"]
+    let configurationVariants=[""]
+
     function generateRequest(busyReceivers){
         currentTime.set($sources.at(0).getGenTime());///устанавливаем текущее время
                 $sources.at(0).generateNewRequest($alfa, $beta, $sources);
@@ -191,14 +195,10 @@
                refReq=Number(Number(refReq)+Number($sources.at(index).getRefusedRequestsAmount()));
             }
 
-            // console.log(refReq);
-            // console.log($sources);
             let currentP=Number(Number(refReq)/Number($summaryAmountOfRequests));
             if (!isFirstIteration){
                 if (Number((Math.abs(currentP-$previousP))<Number(0.1))){
                     accuracyAchieved=true;
-                    // console.log(currentP);
-                    // console.log($previousP);
                 }
             }
             else{
@@ -216,13 +216,9 @@
             if (Number(newAmountOfRequests)>Number(1000000)){
                 accuracyAchieved=true;
             }
-            // console.log(currentP);
-            // console.log($previousP);
             previousP.set(currentP);
             previousAmountOfRequests.set($summaryAmountOfRequests);
             summaryAmountOfRequests.set(Math.round(newAmountOfRequests));
-            // console.log($summaryAmountOfRequests);
-
         }
 
         ////подсчёт показателей 
@@ -336,6 +332,79 @@
             sourcesStats.push([currSourse.getNumber(),sumAmount, pRef, TPrep, TObsl,TBP,  dispObsl, dispBP]);
         }
         startMod=true;
+    }
+
+    function findOpt(){
+        summaryAmountOfRequests.set(1440);
+		firstSummaryAmountOfRequests.set(1440);
+		alfa.set(55);
+		beta.set(65);
+        lambda.set(0.033);
+        for (let sourcesAmount=2; sourcesAmount<9; sourcesAmount++){
+            for (let receiversAmount=2;receiversAmount<17;receiversAmount++){
+                for (let bufferSize=1; bufferSize<17;bufferSize++){
+                    let source_amount = sourcesAmount;
+                    let reciever_amount = receiversAmount;
+                    let buffer_size = bufferSize;
+	
+                    let buf = new Buffer(buffer_size);
+                    
+                    buffer.set(buf);
+                    let sor = [];
+                    for (let index = 0; index < source_amount; index++) {
+                         let source = new Source(index+1);
+                         source.generateNewRequestTime($alfa,$beta);
+                         sor.push(source);
+                    }
+                    sources.set(sor);
+                    let rec = [];
+                    for (let index = 0; index < reciever_amount; index++) {
+                        let receiver = new Receiver(index+1);
+                        receiver.generateFreeTime($lambda);
+                        rec.push(receiver);
+                    }
+                    recievers.set(rec);
+                    currentEvent.set("Начало моделирования");
+                    let sortedR = $recievers.slice().sort((a, b) => a.freeTime - b.freeTime);
+                    let sortedS = $sources.slice().sort((a, b) => a.genTime - b.genTime);
+                    
+                    recievers.set(sortedR);
+                    sources.set(sortedS);
+
+                    console.log('start auto');
+
+                    doAuto();
+
+                    console.log('finish auto');
+
+                    let minUsability=1000;
+                    for (let index=0;index<receiversStats.length;index++){////находим минимальную загруженность приборов данной конфигурации
+                        if (Number(receiversStats[index][1])<Number(minUsability)){
+                            minUsability=Number(receiversStats[index][1]);
+                        }
+                    }
+                    let maxRef=-1000;
+                    let maxTObsl=-1000;
+                    for (let index=0;index<sourcesStats.length;index++){
+                        if (Number(sourcesStats[index][2])>Number(maxRef)){////находим максимальную вероятность отказа данной конфигурации
+                            maxRef=Number(sourcesStats[index][2]);
+                        }
+                        if (Number(sourcesStats[index][3])>Number(maxTObsl)){////находим максимальную вероятность отказа данной конфигурации
+                            maxTObsl=Number(sourcesStats[index][3]);
+                        }
+                    }
+
+                    configurationVariants.push(sourcesAmount,receiversAmount,bufferSize,maxRef,minUsability,maxTObsl);
+                    console.log(sourcesAmount);
+                    console.log(receiversAmount);
+                    console.log(bufferSize);
+                    console.log(maxRef);
+                    console.log(minUsability);
+                    console.log(maxTObsl);
+                }
+            }
+        }
+
     }
 </script>
 
@@ -476,5 +545,41 @@
       </Table>
     <br />
     {/if} 
+    {/if} 
+
+    {#if ($mode=='optimal')}
+      <h1><strong>Варианты конфигурации</strong></h1>
+
+      <br />
+    <Row>
+		<Col sm="6">
+		</Col>
+        <Col sm="3">
+            <Button color="primary" on:click={findOpt}>Подобрать варианты</Button>
+		</Col>
+	</Row>
+    
+
+    <h4><strong>Варианты конфигурации</strong></h4>
+
+    <br />
+    <Table>
+        <tr>
+            {#each configurationColumns as column}
+                <th>{column}</th>
+            {/each}
+        </tr>
+
+        {#each configurationVariants as row}
+		<tr>
+			{#each row as cell}
+			<td contenteditable="true" bind:innerHTML={cell} />
+			{/each}
+		</tr>
+        {/each}
+        
+      </Table>
+    <br />
+    
     {/if} 
 </component>
