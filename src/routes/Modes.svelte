@@ -8,6 +8,7 @@
 	////import Auto from './Auto.svelte';
 	///import type { Script } from 'svelte/types/compiler/interfaces.js';
     let startMod=false;
+    // let configSucc=false;
 
     let sourceColumns = ["Номер", "Время генерации следующей заявки", "Всего сгенерировано заявок", "Число отказов"];
     let currentSources =[""];
@@ -84,16 +85,6 @@
 
         if ($generatedRequests==$summaryAmountOfRequests)///заканчиваем генерацию заявок
         {
-            ///поменять время генерации след заявки во всех источниках на -
-            // if (Number(Number($finishedRequests)+Number($refusedRequests))==Number($summaryAmountOfRequests)){
-            //     currentEvent.set("Моделирование закончено. Все заявки сгенерированы и обработаны.");
-            // }
-            // else{
-            //     if ((Number(busyReceivers.length)!=Number(0))){//если есть занятые приборы
-            //         freeReciever(busyReceivers);
-            //     }
-            // }
-
             if ((Number(busyReceivers.length)!=Number(0))){//если есть занятые приборы
                     freeReciever(busyReceivers);
                 }
@@ -118,6 +109,8 @@
            }
         }
 
+        // console.log('шаг');
+    if($mode='step'){
     currentSources=[];
         let sortedSByNumber = $sources.slice().sort((a, b) => a.getNumber() - b.getNumber());
         for (let index = 0; index < sortedSByNumber.length; index++) {
@@ -138,6 +131,7 @@
             ////console.log(currElem);
             currentBuffer.push([(index+1), currElem.getTimeOfPasting(), currElem.getSourceNumber(), currElem.getNumber()]);
         }
+    }
 		 ///console.log($sources);
 		// console.log($recievers);
         ///console.log($buffer);
@@ -152,6 +146,7 @@
         let isFirstIteration=true;
         // console.log("inside");
         while(!accuracyAchieved){
+            console.log("начинаем инициализацию");
            let buf = new Buffer($buffer.getContent().length);
            buffer.set(buf);
             
@@ -186,9 +181,11 @@
             
             requestSource.set(0);
             requestNumber.set(0);
+           
         while($currentEvent!=="Моделирование закончено. Все заявки сгенерированы и обработаны."){////собираем всю информацию по моделированию
             doStep();
             }
+           
 
             let refReq=0;
             for (let index = 0; Number(index) < Number($sources.length); index++) {
@@ -231,9 +228,10 @@
             
             let sor = [];
             for (let index = 0; Number(index) < Number($sources.length); index++) {
-            let source = new Source(index+1);
-			source.generateNewRequestTime($alfa,$beta);
-			sor.push(source);}
+                let source = new Source(index+1);
+                source.generateNewRequestTime($alfa,$beta);
+                sor.push(source);
+            }
             
             sources.set(sor);
             
@@ -335,14 +333,18 @@
     }
 
     function findOpt(){
-        summaryAmountOfRequests.set(1440);
-		firstSummaryAmountOfRequests.set(1440);
 		alfa.set(55);
 		beta.set(65);
         lambda.set(0.033);
+        configurationVariants=[];
+       
+
         for (let sourcesAmount=2; sourcesAmount<9; sourcesAmount++){
             for (let receiversAmount=2;receiversAmount<17;receiversAmount++){
                 for (let bufferSize=1; bufferSize<17;bufferSize++){
+                    summaryAmountOfRequests.set(Number((1440)*Number(sourcesAmount)));
+                    firstSummaryAmountOfRequests.set(Number((1440)*Number(sourcesAmount)));
+
                     let source_amount = sourcesAmount;
                     let reciever_amount = receiversAmount;
                     let buffer_size = bufferSize;
@@ -353,29 +355,19 @@
                     let sor = [];
                     for (let index = 0; index < source_amount; index++) {
                          let source = new Source(index+1);
-                         source.generateNewRequestTime($alfa,$beta);
+                         ///source.generateNewRequestTime($alfa,$beta);
                          sor.push(source);
                     }
                     sources.set(sor);
                     let rec = [];
                     for (let index = 0; index < reciever_amount; index++) {
                         let receiver = new Receiver(index+1);
-                        receiver.generateFreeTime($lambda);
+                        ////receiver.generateFreeTime($lambda);
                         rec.push(receiver);
                     }
                     recievers.set(rec);
-                    currentEvent.set("Начало моделирования");
-                    let sortedR = $recievers.slice().sort((a, b) => a.freeTime - b.freeTime);
-                    let sortedS = $sources.slice().sort((a, b) => a.genTime - b.genTime);
-                    
-                    recievers.set(sortedR);
-                    sources.set(sortedS);
-
-                    console.log('start auto');
 
                     doAuto();
-
-                    console.log('finish auto');
 
                     let minUsability=1000;
                     for (let index=0;index<receiversStats.length;index++){////находим минимальную загруженность приборов данной конфигурации
@@ -394,15 +386,18 @@
                         }
                     }
 
-                    configurationVariants.push(sourcesAmount,receiversAmount,bufferSize,maxRef,minUsability,maxTObsl);
+                    ///требования к системе
+                    if((maxRef!=-1000)&&(Number(maxRef)<0.1)&&( Number(minUsability)>0.60)&&(Number(minUsability)!=1000)&&(maxTObsl<60)&&(maxTObsl!=-1000)){
+                        configurationVariants.push(sourcesAmount,receiversAmount,bufferSize,maxRef,minUsability,maxTObsl);
+                    }
                     console.log(sourcesAmount);
                     console.log(receiversAmount);
                     console.log(bufferSize);
-                    console.log(maxRef);
-                    console.log(minUsability);
-                    console.log(maxTObsl);
                 }
             }
+            mode.set('optimal');
+            console.log(configurationVariants);
+
         }
 
     }
@@ -558,28 +553,6 @@
             <Button color="primary" on:click={findOpt}>Подобрать варианты</Button>
 		</Col>
 	</Row>
-    
-
-    <h4><strong>Варианты конфигурации</strong></h4>
-
-    <br />
-    <Table>
-        <tr>
-            {#each configurationColumns as column}
-                <th>{column}</th>
-            {/each}
-        </tr>
-
-        {#each configurationVariants as row}
-		<tr>
-			{#each row as cell}
-			<td contenteditable="true" bind:innerHTML={cell} />
-			{/each}
-		</tr>
-        {/each}
-        
-      </Table>
-    <br />
     
     {/if} 
 </component>
