@@ -1,22 +1,51 @@
-# create-svelte
+# Модель системы массового обслуживания
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+Проект представляет собой модель системы массового обслуживания с интерфейсом. Отображение результатов моделирования
+представлено в виде сводной таблицы результатов(пошаговый режим), календаря событий, буфера и текущего состояния(
+автоматический режим). Проект был разработан в
+рамках дисциплины "Архитектура программных систем" Санкт-Петербургского Политехнического университета им. Петра
+Великого (ВШПИ, Программная инженерия, 3-ий курс).
 
-## Creating a project
+## Формализованная схема вычислительной системы
 
-If you're seeing this, you've probably already done this step. Congrats!
+КАРТИНКА
+где
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+* Иn - источник заявки(бесконечный источник с равномерным законом распределения заявок)
+* ДП - дисциплина постановки в буфер(приоритет по номеру прибора)
+* БП - буфер(постановка заявки на свободное место)
+* ДВ - дисциплина выбора(приоритет по номеру источника, по одной заявке)
+* Пn - приёмник с экспоненциальным законом распределения времени обслуживания
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+## Временная диаграмма
 
-## Developing
+КАРТИНКА
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Пример системы массового обслуживания, соответствующей модели
+
+### Система биомониторинга качества воды Петербургского Водоканала.
+
+С 2005 года на каждом водозаборе Петербургского водоканала используется
+биомониторинг качества воды-в аквариумы с водой помещают раков,
+показатели жизнедеятельности которых позволяют судить об уровне
+токсичности воды. Такая система биомониторинга позволяет в реальном
+времени судить о наличии токсинов без проведения долгосрочных анализов.
+Для организации биомониторинга к панцирям раков прикрепляют волоконнооптические датчики, снимающие показатели
+сердцебиения. В случае загрязнения окружающей среды частота сердечных сокращений резко
+повышается не менее чем на 50%, что позволяет судить о наличии токсичных
+отходов в воде. Тогда, система обработки (простейший аналог-плата Arduino со
+светодиодами)
+
+## Стек технологий
+![Svelte](https://img.shields.io/badge/svelte-%23f1413d.svg?style=for-the-badge&logo=svelte&logoColor=white)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/bootstrap-%238511FA.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
+
+
+## Запуск и установка
+
+Используется sveltekit
+Необходимо скачать проект и установить зависимости `npm install` (или `pnpm install` или `yarn`), запустить сервер:
 
 ```bash
 npm run dev
@@ -25,14 +54,12 @@ npm run dev
 npm run dev -- --open
 ```
 
-## Building
-
-To create a production version of your app:
+Чтобы создать production-версию:
 
 ```bash
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+Чтобы создать preview production-версию `npm run preview`.
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+> Для развертывания может понадобиться установка [адаптера](https://kit.svelte.dev/docs/adapters) для целевой среды окружения.
