@@ -63,3 +63,6 @@ npm run build
 Чтобы создать preview production-версию `npm run preview`.
 
 > Для развертывания может понадобиться установка [адаптера](https://kit.svelte.dev/docs/adapters) для целевой среды окружения.
+
+## Дополнительная информация
+Подробное описание проекта представленно в виде [отчета](https://disk.yandex.ru/i/UEZ2pu_Og6cBPA)
